@@ -1,146 +1,218 @@
 <!DOCTYPE html>
 <html lang="ta">
 <head>
-  <meta charset="UTF-8">
-  <title>Vimshottari Dasa 3-Column Tree</title>
+  <meta charset="UTF-8" />
+  <title>Vimshottari Dasa 5-Level Tree - Modern UI</title>
   <style>
-    body { font-family: 'Latha', Arial, sans-serif; background: #fffef8; text-align: center; margin: 0; }
-    #main-container {
-      display: grid;
-      grid-template-columns: 49% 49%;
-      gap: 2%;
-      max-width: 1200px;
-      margin: 0 auto 20px auto;
+    body {
+      font-family: 'Latha', Arial, sans-serif;
+      background: #fffef8;
+      text-align: center;
+      margin: 0;
     }
-    #dasatree-3col-panel {
+    /* Container structure */
+    #app-container {
+      max-width: 1360px;
+      margin: 28px auto 24px auto;
+      padding: 0 12px;
+    }
+    /* Place summary always on top, center */
+    #current {
+      margin: 0 auto 28px auto;
+      max-width: 780px;
+      min-height: 92px;
+    }
+    .currentbox {
+      background: #f8f1ff;
+      border-left: 8px solid #374785;
+      border-radius: 14px;
+      box-shadow: 0 2px 10px #dad2fa55;
+      padding: 20px 32px;
+      font-size: 1.1em;
+      text-align: left;
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+    .currentbox > div { margin-bottom: 6px; }
+    .dates {
+      font-size: 0.87em;
+      color: #6f6f82;
+      margin-left: 10px;
+    }
+    /* Dasa tree five columns panel */
+    #dasatree-5col-panel {
       display: flex;
-      gap: 18px;
-      background: #f8faff;
+      flex-direction: row;
+      gap: 12px;
+      background: #fcfcff;
       border-radius: 10px;
-      padding: 18px 7px 12px 7px;
-      min-height: 210px;
-      box-shadow: 0 2px 6px #ccc9;
+      padding: 24px 8px 16px 8px;
+      min-height: 265px;
+      box-shadow: 0 3px 14px #dbe7ff55;
       justify-content: center;
+      overflow-x: auto;
+      margin-bottom: 24px;
     }
+    /* Each tree column */
     .treecol {
       flex: 1 1 0;
-      min-width: 140px;
-      background: #fafdff;
-      border-radius: 10px;
-      box-shadow: 0 2px 4px #e1e1e1;
-      padding: 0 6px 0 10px;
-      min-height: 170px;
+      min-width: 170px;
+      background: #ffffff;
+      border-radius: 11px;
+      box-shadow: 0 2px 7px #c9d7e966;
+      min-height: 205px;
       display: flex;
       flex-direction: column;
       align-items: stretch;
+      border: 1.5px solid #f0f0fa;
+      margin-bottom: 0;
     }
     .col-head {
-      font-weight: bold; letter-spacing: 1.4px; color: #6a8eb8;
-      text-transform: uppercase; margin-top: 2px; margin-bottom: 7px; font-size: 96%; text-align: center;
-      border-bottom: 1.4px solid #e2eafe; padding-bottom: 4px;
+      font-weight: bold;
+      letter-spacing: 1.4px;
+      color: #203060;
+      background: #f2f4fe;
+      text-transform: uppercase;
+      margin-top: 0;
+      margin-bottom: 6px;
+      padding: 10px 2px 7px 2px;
+      font-size: 97%;
+      text-align: center;
+      border-bottom: 1.4px solid #e2eafe;
+      border-radius: 9px 9px 0 0;
     }
+    /* List layout */
     .dasa-tree-list {
-      list-style: none; margin: 0; padding: 0;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      overflow-y: auto;
+      flex: 1;
     }
     .dasa-tree-list li {
       cursor: pointer;
-      border-radius: 7px;
-      padding: 6px 10px 4px 10px;
-      margin: 2px 0;
+      border-radius: 6.5px;
+      padding: 7px 13px 5px 13px;
+      margin: 3px 0;
       font-size: 1em;
-      transition: background 0.18s, color 0.15s;
+      transition: all 0.17s cubic-bezier(.4,.2,.6,.97);
       position: relative;
       text-align: left;
+      user-select: none;
+      border: 2.5px solid transparent;
+      border-left-width: 8px;
+      margin-right: 3px;
     }
+    .dasa-tree-list li:hover:not(.selected) {
+      background: #f4fbfe;
+      border-left-color: #dceaff;
+    }
+    /* Current running pada highlight, unique for every level */
+    .dasa-tree-dasa.current    { border-left: 8px solid #374785; background: #efeaff; }
+    .dasa-tree-puthi.current  { border-left: 8px solid #4286f4; background: #e4f0ff; }
+    .dasa-tree-anthara.current{ border-left: 8px solid #ff9e33; background: #fff8ed; }
+    .dasa-tree-sutchuma.current { border-left: 8px solid #37cfcf; background: #e6fcfc; }
+    .dasa-tree-pranan.current { border-left: 8px solid #67b84b; background: #e9ffe3; }
+    /* Selected distinct */
     .dasa-tree-dasa.selected {
-      background: #1d60b2;
-      color: #fff;
+      background: #a8a2ea;
+      color: #fff !important;
+      border: 2.5px solid #374785;
       font-weight: bold;
     }
     .dasa-tree-puthi.selected {
-      background: #2997fd;
-      color: #fff;
+      background: #6eb1f8;
+      color: #fff !important;
+      border: 2.5px solid #4286f4;
       font-weight: bold;
     }
     .dasa-tree-anthara.selected {
-      background: #dbf4fc;
-      color: #266;
+      background: #ffc480;
+      color: #613f0a !important;
+      border: 2.5px solid #ff9e33;
       font-weight: bold;
     }
-    .dasa-tree-list li:hover:not(.selected) {
-      background: #e1f2ff;
+    .dasa-tree-sutchuma.selected {
+      background: #50e7e7;
+      color: #045a5a !important;
+      border: 2.5px solid #37cfcf;
+      font-weight: bold;
     }
-    /* Layout for other parts */
-    .south-chart { max-width: 900px; margin: 18px auto 12px auto; }
-    #current { margin-bottom: 15px; }
-    .currentbox { margin: 10px auto 21px auto; background: #e8ecf7;
-      border-radius: 10px; box-shadow: 0 2px 6px #87aed9aa;
-      padding: 16px 24px; font-size: 1.1em; text-align: left;
-      max-width: 640px;
+    .dasa-tree-pranan.selected {
+      background: #b9fa9b;
+      color: #254915 !important;
+      border: 2.5px solid #67b84b;
+      font-weight: bold;
+    }
+    /* Both current and selected: stronger style */
+    .dasa-tree-dasa.selected.current      { background: #6a54bc; color:#fff; }
+    .dasa-tree-puthi.selected.current     { background: #236ccb; color:#fff; }
+    .dasa-tree-anthara.selected.current   { background: #ff9800; color:#fff; }
+    .dasa-tree-sutchuma.selected.current  { background: #14b6b6; color:#fff; }
+    .dasa-tree-pranan.selected.current    { background: #369730; color:#fff; }
+    /* Date style in items */
+    .dasa-tree-list li .dateitem {
+      font-size: 82%;
+      color: #8c8b99;
+      margin-top: -2px;
+      margin-bottom: 2px;
+      display: block;
+    }
+    /* Responsive and usability tweaks */
+    @media (max-width: 1050px) {
+      #dasatree-5col-panel { flex-wrap: wrap; }
+      .treecol { min-width: 55vw; margin-bottom: 22px; }
+    }
+    @media (max-width: 700px) {
+      .treecol { min-width: 97vw; }
+      #dasatree-5col-panel { flex-direction: column; }
     }
   </style>
 </head>
 <body>
-  <h2>🌟 Vimshottari Dasha &nbsp; <span style="color:#175397;">Three-Column Dasa Tree</span> 🌟</h2>
+  <h2>🌟 Vimshottari Dasha &nbsp; <span style="color:#175397;">Five-Level Dasa Tree</span> 🌟</h2>
 
-  <form onsubmit="event.preventDefault(); run();">
-    <div style="margin-bottom:8px;">
-      <label>பிறந்த தேதி: <input type="date" id="dob" required></label>
+  <form onsubmit="event.preventDefault(); run();"
+        style="margin-bottom:21px;">
+    <div style="margin-bottom:10px;">
+      <label>பிறந்த தேதி:
+        <input type="date" id="dob" required />
+      </label>
       <span style="margin-left:12px;">
         சந்திரன் Degree:
-        <input type="number" id="moon_deg" min="0" max="359" step="1" required style="width:38px;">°
-        <input type="number" id="moon_min" min="0" max="59" step="1" required style="width:38px;">'
-        <input type="number" id="moon_sec" min="0" max="59" step="1" required style="width:38px;">"
+        <input type="number" id="moon_deg" min="0" max="359" step="1" required style="width:38px;" />°
+        <input type="number" id="moon_min" min="0" max="59" step="1" required style="width:38px;" />'
+        <input type="number" id="moon_sec" min="0" max="59" step="1" required style="width:38px;" />"
       </span>
     </div>
     <div>
-      <label>கணிப்புக்கான தேதி: <input type="datetime-local" id="caldate" style="width:210px;"></label>
+      <label>கணிப்புக்கான தேதி:
+        <input type="datetime-local" id="caldate" style="width:210px;" />
+      </label>
       <button type="submit" style="margin-left:18px;">கணக்கிடு</button>
     </div>
   </form>
 
-  <div id="main-container">
-    <div>
-      <div id="dasatree-3col-panel"></div>
-    </div>
-    <div>
-      <div id="current"></div>
-    </div>
+  <div id="app-container">
+    <div id="current"></div>
+    <div id="dasatree-5col-panel"></div>
   </div>
 
   <script>
-    // --- Dasa Data and Logic, as in your original code (unchanged) ---
     const PLANETS = ["கேது","சுக்ரன்","சூரியன்","சந்திரன்","செவ்வாய்","ராகு","குரு","சனி","புதன்"];
     const DASA_YEARS = {"கேது":7,"சுக்ரன்":20,"சூரியன்":6,"சந்திரன்":10,"செவ்வாய்":7,"ராகு":18,"குரு":16,"சனி":19,"புதன்":17};
     const NAKS = [
-      {name:'அஸ்வினி',lord:'கேது'},
-      {name:'பரணி',lord:'சுக்ரன்'},
-      {name:'கிருத்திகை',lord:'சூரியன்'},
-      {name:'ரோஹிணி',lord:'சந்திரன்'},
-      {name:'மிருகசீரிடம்',lord:'செவ்வாய்'},
-      {name:'திருவாதிரை',lord:'ராகு'},
-      {name:'புனர்பூசம்',lord:'குரு'},
-      {name:'பூசம்',lord:'சனி'},
-      {name:'ஆயில்யம்',lord:'புதன்'},
-      {name:'மகம்',lord:'கேது'},
-      {name:'பூரம்',lord:'சுக்ரன்'},
-      {name:'உத்திரம்',lord:'சூரியன்'},
-      {name:'ஹஸ்தம்',lord:'சந்திரன்'},
-      {name:'சித்திரை',lord:'செவ்வாய்'},
-      {name:'சுவாதி',lord:'ராகு'},
-      {name:'விசாகம்',lord:'குரு'},
-      {name:'அனுஷம்',lord:'சனி'},
-      {name:'கேட்டை',lord:'புதன்'},
-      {name:'மூலம்',lord:'கேது'},
-      {name:'பூராடம்',lord:'சுக்ரன்'},
-      {name:'உத்திராடம்',lord:'சூரியன்'},
-      {name:'திருவோணம்',lord:'சந்திரன்'},
-      {name:'அவிட்டம்',lord:'செவ்வாய்'},
-      {name:'சதயம்',lord:'ராகு'},
-      {name:'பூரட்டாதி',lord:'குரு'},
-      {name:'உத்திரட்டாதி',lord:'சனி'},
-      {name:'ரேவதி',lord:'புதன்'}
+      {name:'அஸ்வினி',lord:'கேது'}, {name:'பரணி',lord:'சுக்ரன்'}, {name:'கிருத்திகை',lord:'சூரியன்'},
+      {name:'ரோஹிணி',lord:'சந்திரன்'}, {name:'மிருகசீரிடம்',lord:'செவ்வாய்'}, {name:'திருவாதிரை',lord:'ராகு'},
+      {name:'புனர்பூசம்',lord:'குரு'}, {name:'பூசம்',lord:'சனி'}, {name:'ஆயில்யம்',lord:'புதன்'},
+      {name:'மகம்',lord:'கேது'}, {name:'பூரம்',lord:'சுக்ரன்'}, {name:'உத்திரம்',lord:'சூரியன்'},
+      {name:'ஹஸ்தம்',lord:'சந்திரன்'}, {name:'சித்திரை',lord:'செவ்வாய்'}, {name:'சுவாதி',lord:'ராகு'},
+      {name:'விசாகம்',lord:'குரு'}, {name:'அனுஷம்',lord:'சனி'}, {name:'கேட்டை',lord:'புதன்'},
+      {name:'மூலம்',lord:'கேது'}, {name:'பூராடம்',lord:'சுக்ரன்'}, {name:'உத்திராடம்',lord:'சூரியன்'},
+      {name:'திருவோணம்',lord:'சந்திரன்'}, {name:'அவிட்டம்',lord:'செவ்வாய்'}, {name:'சதயம்',lord:'ராகு'},
+      {name:'பூரட்டாதி',lord:'குரு'}, {name:'உத்திரட்டாதி',lord:'சனி'}, {name:'ரேவதி',lord:'புதன்'}
     ];
+
     function addYears(date, years) {
       const d = new Date(date), y = Math.floor(years), m = (years - y) * 12;
       d.setFullYear(d.getFullYear() + y);
@@ -148,179 +220,171 @@
       d.setDate(d.getDate() + Math.round((m - Math.floor(m)) * 30));
       return d;
     }
-    function formatDate(dt) { return dt ? dt.toISOString().slice(0,10) : ""; }
-    function cycle9Nakshatras(start) { return Array(9).fill(0).map((_,j) => (start+j)%27); }
+    function formatDate(dt) {
+      if(!dt) return "";
+      const y = dt.getFullYear();
+      const m = (dt.getMonth()+1).toString().padStart(2,'0');
+      const d = dt.getDate().toString().padStart(2,'0');
+      return `${y}-${m}-${d}`;
+    }
+    function cycle9Nakshatras(start) {
+      return Array(9).fill(0).map((_,j) => (start + j) % 27);
+    }
     function getDasaLordsAndNames(moon) {
       const nakLen = 13 + 20/60;
       const nakIdx = Math.floor(moon / nakLen);
       const startLord = NAKS[nakIdx].lord;
-      const planetOrder = PLANETS;
-      const startIdx = planetOrder.indexOf(startLord);
-      const dasaLords = planetOrder.slice(startIdx).concat(planetOrder.slice(0,startIdx));
+      const startIdx = PLANETS.indexOf(startLord);
+      const dasaLords = PLANETS.slice(startIdx).concat(PLANETS.slice(0,startIdx));
       const dasaNakIdxs = Array(9).fill(0).map((_,j) => (nakIdx + j) % 27);
       const dasaNakNames = dasaNakIdxs.map(idx => NAKS[idx].name);
       return {dasaLords, dasaNakIdxs, dasaNakNames, nakIdx};
     }
+    // Build the five-level Vimshottari tree for current date
     function dasaTree(moon, dob, now) {
       const nakLen = 13 + 20/60;
       const {dasaLords, dasaNakIdxs, dasaNakNames, nakIdx} = getDasaLordsAndNames(moon);
       const offsetDeg = moon - nakIdx * nakLen;
-      let balance = 1 - (offsetDeg / nakLen);
+      const balance = 1 - (offsetDeg / nakLen);
+      // Main Mahadasa starts
       let mdStarts = [], cursor = addYears(dob, -(DASA_YEARS[dasaLords[0]] * (1 - balance)));
-      for(let i=0; i<9; i++) {
-        mdStarts[i] = new Date(cursor);
-        let span = DASA_YEARS[dasaLords[i]];
-        cursor = addYears(cursor, span);
-      }
-      let arr = dasaLords.map((lord,i) => ({
-        index: i,
-        lord: lord,
-        nak: dasaNakNames[i],
-        nakIdx: dasaNakIdxs[i],
-        start: mdStarts[i],
-        end: mdStarts[i+1] || cursor,
-        current: now >= mdStarts[i] && now < (mdStarts[i+1]||cursor),
-        puthis: []
+      for(let i=0;i<9;i++){ mdStarts[i]=new Date(cursor); cursor=addYears(cursor, DASA_YEARS[dasaLords[i]]); }
+      const arr = dasaLords.map((lord, i) => ({
+        index: i, lord: lord, nak: dasaNakNames[i], nakIdx: dasaNakIdxs[i],
+        start: mdStarts[i], end: mdStarts[i+1]||cursor,
+        current: now>=mdStarts[i] && now<(mdStarts[i+1]||cursor), puthis:[]
       }));
-      arr.forEach((md, mdi) => {
-        let puthiNakIdxs = cycle9Nakshatras(md.nakIdx);
-        let puthiLords = puthiNakIdxs.map(idx => NAKS[idx].lord);
-        let puthiNakNames = puthiNakIdxs.map(idx => NAKS[idx].name);
-        let duration = (md.end - md.start) / (1000*60*60*24*365.2425);
-        let antarStarts = [], cursorP = new Date(md.start);
-        for(let j=0; j<9; j++) {
-          antarStarts[j] = new Date(cursorP);
-          let antardur = duration * (DASA_YEARS[puthiLords[j]] / 120);
-          cursorP = addYears(cursorP, antardur);
-        }
-        md.puthis = puthiLords.map((plord,pi) => ({
-          index: pi,
-          lord: plord,
-          nak: puthiNakNames[pi],
-          nakIdx: puthiNakIdxs[pi],
-          start: antarStarts[pi],
-          end: antarStarts[pi+1] || cursorP,
-          current: now >= antarStarts[pi] && now < (antarStarts[pi+1] || cursorP),
-          antharas: []
+      arr.forEach(md => {
+        let puthiNakIdxs = cycle9Nakshatras(md.nakIdx), puthiLords = puthiNakIdxs.map(idx=>NAKS[idx].lord), 
+          puthiNakNames = puthiNakIdxs.map(idx=>NAKS[idx].name);
+        let mdDuration = (md.end - md.start) / (1000*60*60*24*365.2425);
+        let puthiStarts=[], cursorP=new Date(md.start);
+        for(let i=0;i<9;i++){ puthiStarts[i]=new Date(cursorP); cursorP=addYears(cursorP, mdDuration*(DASA_YEARS[puthiLords[i]]/120)); }
+        md.puthis = puthiLords.map((lord, i) => ({
+          index: i, lord, nak: puthiNakNames[i], nakIdx: puthiNakIdxs[i],
+          start: puthiStarts[i], end: puthiStarts[i+1]||cursorP,
+          current: now>=puthiStarts[i] && now<(puthiStarts[i+1]||cursorP), antharas:[]
         }));
-        md.puthis.forEach((pt, pk) => {
-          let anthNakIdxs = cycle9Nakshatras(pt.nakIdx);
-          let anthLords = anthNakIdxs.map(idx => NAKS[idx].lord);
-          let anthNakNames = anthNakIdxs.map(idx => NAKS[idx].name);
-          let dur = (pt.end - pt.start) / (1000*60*60*24*365.2425);
-          let anthStarts = [], cursorA = new Date(pt.start);
-          for(let k=0; k<9; k++) {
-            anthStarts[k] = new Date(cursorA);
-            let ahDur = dur * (DASA_YEARS[anthLords[k]] / 120);
-            cursorA = addYears(cursorA, ahDur);
-          }
-          pt.antharas = anthLords.map((alord, ai) => ({
-            index: ai,
-            lord: alord,
-            nak: anthNakNames[ai],
-            nakIdx: anthNakIdxs[ai],
-            start: anthStarts[ai],
-            end: anthStarts[ai+1] || cursorA,
-            current: now >= anthStarts[ai] && now < (anthStarts[ai+1] || cursorA)
+        md.puthis.forEach(pt => {
+          let anthNakIdxs = cycle9Nakshatras(pt.nakIdx), anthLords = anthNakIdxs.map(idx=>NAKS[idx].lord), 
+            anthNakNames = anthNakIdxs.map(idx=>NAKS[idx].name);
+          let ptDuration = (pt.end - pt.start) / (1000*60*60*24*365.2425);
+          let anthStarts=[], cursorA=new Date(pt.start);
+          for(let i=0;i<9;i++){ anthStarts[i]=new Date(cursorA); cursorA=addYears(cursorA, ptDuration*(DASA_YEARS[anthLords[i]]/120)); }
+          pt.antharas = anthLords.map((lord, i) => ({
+            index: i, lord, nak: anthNakNames[i], nakIdx: anthNakIdxs[i],
+            start: anthStarts[i], end: anthStarts[i+1]||cursorA,
+            current: now>=anthStarts[i] && now<(anthStarts[i+1]||cursorA), sutchumas:[]
           }));
+          pt.antharas.forEach(at => {
+            let sutchNakIdxs=cycle9Nakshatras(at.nakIdx),sutchLords=sutchNakIdxs.map(idx=>NAKS[idx].lord),
+                sutchNakNames=sutchNakIdxs.map(idx=>NAKS[idx].name);
+            let atDuration=(at.end-at.start)/(1000*60*60*24*365.2425);
+            let sutchStarts=[], cursorS=new Date(at.start);
+            for(let i=0;i<9;i++){ sutchStarts[i]=new Date(cursorS); cursorS=addYears(cursorS, atDuration*(DASA_YEARS[sutchLords[i]]/120)); }
+            at.sutchumas = sutchLords.map((lord, i) => ({
+              index: i, lord, nak: sutchNakNames[i], nakIdx: sutchNakIdxs[i],
+              start: sutchStarts[i], end: sutchStarts[i+1]||cursorS,
+              current: now>=sutchStarts[i] && now<(sutchStarts[i+1]||cursorS), pranans:[]
+            }));
+            at.sutchumas.forEach(sutch => {
+              let prananNakIdxs=cycle9Nakshatras(sutch.nakIdx),prananLords=prananNakIdxs.map(idx=>NAKS[idx].lord),
+                prananNakNames=prananNakIdxs.map(idx=>NAKS[idx].name);
+              let sutchDuration=(sutch.end-sutch.start)/(1000*60*60*24*365.2425);
+              let prananStarts=[], cursorP5=new Date(sutch.start);
+              for(let i=0;i<9;i++){ prananStarts[i]=new Date(cursorP5); cursorP5=addYears(cursorP5, sutchDuration*(DASA_YEARS[prananLords[i]]/120)); }
+              sutch.pranans = prananLords.map((lord, i) => ({
+                index: i, lord, nak: prananNakNames[i], nakIdx: prananNakIdxs[i],
+                start: prananStarts[i], end: prananStarts[i+1]||cursorP5,
+                current: now>=prananStarts[i] && now<(prananStarts[i+1]||cursorP5)
+              }));
+            });
+          });
         });
       });
       return arr;
     }
 
-    // --- Three-Column Dasa Tree State ---
+    let dasaSel=0, puthiSel=-1, anthSel=-1, sutchSel=-1, pranSel=-1;
     let vimData = null;
-    let dasaSel = 0, puthiSel = -1, anthSel = -1;
 
-    // Three-column rendering function
-    function renderTree3Col() {
-      if (!vimData) { document.getElementById('dasatree-3col-panel').innerHTML = ''; return; }
-      const col1 = [];
-      const col2 = [];
-      const col3 = [];
+    const levelNames = {
+      dasa: "தசை (Mahadasa)", puthi: "புக்தி (Puthi)", anthara: "அந்தரம் (Anthara)",
+      sutchuma: "சூட்சுமா (Sutchuma)", pranan: "ப்ராணன் (Pranan)"
+    };
 
-      col1.push('<div class="col-head">தசை (Mahadasa)</div>');
-      col1.push('<ul class="dasa-tree-list">');
-      vimData.forEach((md, i) => {
-        col1.push(`<li class="dasa-tree-dasa${dasaSel===i?' selected':''}" onclick="selectDasa(${i})">${md.lord}<div style='font-size:80%;color:#aaa;'>${formatDate(md.start)} - ${formatDate(md.end)}</div></li>`);
-      });
-      col1.push('</ul>');
-
-      col2.push('<div class="col-head">புக்தி (Puthi)</div>');
-      col2.push('<ul class="dasa-tree-list">');
-      if (vimData[dasaSel]) {
-        vimData[dasaSel].puthis.forEach((pt, j) => {
-          col2.push(`<li class="dasa-tree-puthi${puthiSel===j?' selected':''}" onclick="selectPuthi(${j})">${pt.lord}<div style='font-size:80%;color:#aaa;'>${formatDate(pt.start)} - ${formatDate(pt.end)}</div></li>`);
-        });
-      }
-      col2.push('</ul>');
-
-      col3.push('<div class="col-head">அந்தரம் (Anthara)</div>');
-      col3.push('<ul class="dasa-tree-list">');
-      if (vimData[dasaSel]?.puthis[puthiSel]) {
-        vimData[dasaSel].puthis[puthiSel].antharas.forEach((at, k) => {
-          col3.push(`<li class="dasa-tree-anthara${anthSel===k?' selected':''}" onclick="selectAnthara(${k})">${at.lord}<div style='font-size:80%;color:#aaa;'>${formatDate(at.start)} - ${formatDate(at.end)}</div></li>`);
-        });
-      }
-      col3.push('</ul>');
-
-      document.getElementById('dasatree-3col-panel').innerHTML =
-        `<div class="treecol">${col1.join('')}</div>
-         <div class="treecol">${col2.join('')}</div>
-         <div class="treecol">${col3.join('')}</div>`;
+    // List rendering with various highlight modes
+    function renderList(items, selIndex, level, onSelectName) {
+      return `<div class="col-head">${levelNames[level]}</div>
+        <ul class="dasa-tree-list">${
+        items.map((p,i)=>{
+          let clist = [];
+          if (p.current) clist.push('current');
+          if (i === selIndex) clist.push('selected');
+          return `<li class="dasa-tree-${level} ${clist.join(' ')}" onclick="${onSelectName}(${i})">
+            ${p.lord}<span class="dateitem">${formatDate(p.start)} - ${formatDate(p.end)}</span>
+          </li>`;
+        }).join('')
+      }</ul>`;
     }
 
-    // Selection handlers for the tree columns
-    window.selectDasa = function(i) {
-      dasaSel = i; puthiSel = -1; anthSel = -1;
-      renderTree3Col();
-    };
-    window.selectPuthi = function(j) {
-      puthiSel = j; anthSel = -1;
-      renderTree3Col();
-    };
-    window.selectAnthara = function(k) {
-      anthSel = k;
-      renderTree3Col();
-    };
-
-    function renderSummary(md, mdPada, pt, ptPada, at, atPada) {
-      if(!md || !pt || !at) { document.getElementById("current").innerHTML = ""; return; }
-      let html = `<div class="currentbox" style="margin-bottom:14px;text-align:left;">
-        <div><span style="color:#1d60b2;font-weight:bold;">தசை</span>: <b>${md.lord}</b> [${md.nak}] <span class="dates">${formatDate(md.start)} - ${formatDate(md.end)}</span></div>
-        <div><span style="color:#266bbc;font-weight:bold;">புக்தி</span>: <b>${pt.lord}</b> [${pt.nak}] <span class="dates">${formatDate(pt.start)} - ${formatDate(pt.end)}</span></div>
-        <div><span style="color:#3aa9ff;font-weight:bold;">அந்தரம்</span>: <b>${at.lord}</b> [${at.nak}] <span class="dates">${formatDate(at.start)} - ${formatDate(at.end)}</span></div>
-        </div>`;
-      document.getElementById("current").innerHTML = html;
+    function renderTree5Col() {
+      if (!vimData) { document.getElementById('dasatree-5col-panel').innerHTML = ''; return; }
+      const col = [];
+      col.push(`<div class="treecol">${renderList(vimData,dasaSel,'dasa','selectDasa')}</div>`);
+      const puthis = vimData[dasaSel]?.puthis || [];
+      col.push(`<div class="treecol">${renderList(puthis,puthiSel,'puthi','selectPuthi')}</div>`);
+      const antharas = puthis[puthiSel]?.antharas || [];
+      col.push(`<div class="treecol">${renderList(antharas,anthSel,'anthara','selectAnthara')}</div>`);
+      const sutchumas = antharas[anthSel]?.sutchumas || [];
+      col.push(`<div class="treecol">${renderList(sutchumas,sutchSel,'sutchuma','selectSutchuma')}</div>`);
+      const pranans = sutchumas[sutchSel]?.pranans || [];
+      col.push(`<div class="treecol">${renderList(pranans,pranSel,'pranan','selectPranan')}</div>`);
+      document.getElementById('dasatree-5col-panel').innerHTML = col.join('');
     }
+    function selectDasa(i){ dasaSel=i; puthiSel=anthSel=sutchSel=pranSel=-1; renderTree5Col(); updateSummary();}
+    function selectPuthi(i){ puthiSel=i; anthSel=sutchSel=pranSel=-1; renderTree5Col(); updateSummary();}
+    function selectAnthara(i){ anthSel=i; sutchSel=pranSel=-1; renderTree5Col(); updateSummary();}
+    function selectSutchuma(i){ sutchSel=i; pranSel=-1; renderTree5Col(); updateSummary();}
+    function selectPranan(i){ pranSel=i; renderTree5Col(); updateSummary();}
+    window.selectDasa=selectDasa;window.selectPuthi=selectPuthi;
+    window.selectAnthara=selectAnthara;window.selectSutchuma=selectSutchuma;window.selectPranan=selectPranan;
 
+    function updateSummary() {
+      if(!vimData){ document.getElementById("current").innerHTML=""; return; }
+      function findCurrentIndex(list){ if(!list)return-1;for(let i=0;i<list.length;i++)if(list[i].current)return i; return 0; }
+      if(dasaSel<0)dasaSel=findCurrentIndex(vimData);
+      const dasa=vimData[dasaSel]; if(!dasa){document.getElementById("current").innerHTML="";return;}
+      if(puthiSel<0)puthiSel=findCurrentIndex(dasa.puthis); const puthi=dasa.puthis[puthiSel]; if(!puthi){document.getElementById("current").innerHTML="";return;}
+      if(anthSel<0)anthSel=findCurrentIndex(puthi.antharas); const anthara=puthi.antharas[anthSel]; if(!anthara){document.getElementById("current").innerHTML="";return;}
+      if(sutchSel<0)sutchSel=findCurrentIndex(anthara.sutchumas); const sutchuma=anthara.sutchumas[sutchSel]; if(!sutchuma){document.getElementById("current").innerHTML="";return;}
+      if(pranSel<0)pranSel=findCurrentIndex(sutchuma.pranans); const pranan=sutchuma.pranans[pranSel]; if(!pranan){document.getElementById("current").innerHTML="";return;}
+      dasaSel=dasa.index; puthiSel=puthi.index; anthSel=anthara.index; sutchSel=sutchuma.index; pranSel=pranan.index;
+      document.getElementById("current").innerHTML = `
+        <div class="currentbox">
+          <div><b>தசை</b>: ${dasa.lord} [${dasa.nak}] <span class="dates">${formatDate(dasa.start)} - ${formatDate(dasa.end)}</span></div>
+          <div><b>புக்தி</b>: ${puthi.lord} [${puthi.nak}] <span class="dates">${formatDate(puthi.start)} - ${formatDate(puthi.end)}</span></div>
+          <div><b>அந்தரம்</b>: ${anthara.lord} [${anthara.nak}] <span class="dates">${formatDate(anthara.start)} - ${formatDate(anthara.end)}</span></div>
+          <div><b>சூட்சுமா</b>: ${sutchuma.lord} [${sutchuma.nak}] <span class="dates">${formatDate(sutchuma.start)} - ${formatDate(sutchuma.end)}</span></div>
+          <div><b>ப்ராணன்</b>: ${pranan.lord} [${pranan.nak}] <span class="dates">${formatDate(pranan.start)} - ${formatDate(pranan.end)}</span></div>
+        </div>
+      `;
+    }
     function run() {
-      let dobStr = document.getElementById("dob").value;
-      let mdeg = parseInt(document.getElementById("moon_deg").value)||0;
-      let mmin = parseInt(document.getElementById("moon_min").value)||0;
-      let msec = parseInt(document.getElementById("moon_sec").value)||0;
-      let moon = mdeg + mmin / 60 + msec / 3600;
-      if(isNaN(moon) || moon < 0 || moon >= 360){
-        alert("சந்திரன் நீளம் சரிபார்க்கவும்.");
-        return;
-      }
-      let dob = new Date(dobStr);
-      if(isNaN(dob.getTime())){
-        alert("பிறந்த தேதி சரிபார்க்கவும்.");
-        return;
-      }
-      let caldateStr = document.getElementById("caldate").value;
-      let now = caldateStr ? new Date(caldateStr) : new Date();
-
+      const dobStr=document.getElementById("dob").value;
+      const mdeg=parseInt(document.getElementById("moon_deg").value)||0;
+      const mmin=parseInt(document.getElementById("moon_min").value)||0;
+      const msec=parseInt(document.getElementById("moon_sec").value)||0;
+      const moon=mdeg+mmin/60+msec/3600;
+      if(isNaN(moon)||moon<0||moon>=360){alert("சந்திரன் நீளம் சரிபார்க்கவும்.");return;}
+      const dob=new Date(dobStr);
+      if(isNaN(dob.getTime())){alert("பிறந்த தேதி சரிபார்க்கவும்.");return;}
+      const caldateStr=document.getElementById("caldate").value;
+      const now=caldateStr ? new Date(caldateStr) : new Date();
       vimData = dasaTree(moon, dob, now);
-      dasaSel = 0;
-      puthiSel = -1;
-      anthSel = -1;
-      renderTree3Col();
-
-      // For info panel on right: fill with selected dasa/puthi/anthara's info if available.
-      let md=vimData[dasaSel], pt=md&&md.puthis[puthiSel], at=pt&&pt.antharas[anthSel];
-      renderSummary(md, {}, pt||{}, at||{});
+      dasaSel=puthiSel=anthSel=sutchSel=pranSel=-1;
+      renderTree5Col();
+      updateSummary();
     }
   </script>
 </body>
